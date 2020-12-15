@@ -8,8 +8,8 @@ use Kanboard\Event\GenericEvent;
 /**
  * Gitea Webhook
  *
- * @author   Frederic Guillot (GiteaWebhook)
- * @author   Chris Metz
+ * @author   Frederic Guillot (GogsWebhook)
+ * @author   Chris Metz (GiteaWebhook)
  */
 class WebhookHandler extends Base
 {

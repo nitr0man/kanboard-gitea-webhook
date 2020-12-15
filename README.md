@@ -32,7 +32,8 @@ Documentation
 
 ### List of supported events
 
-- Gitea commit received
+- Gitea commit reference received
+- Gitea commit close received
 
 ### List of supported actions
 
@@ -46,28 +47,27 @@ Documentation
 3. On Gitea, go to the project settings and go to the section **Webhooks**
 4. Add a new Gitea webhook and paste the Kanboard URL
 
-### Examples
+### Using the plugin
 
-#### Close a Kanboard task when a commit pushed to Gitea
+#### Reference a commit to a Kanboard task
 
-- Choose the event: **Gitea commit received**
+- Choose action: **Create a comment from an external provider**
+- Choose the event: **Gitea commit reference received** (or **Gitea commit close received**, see below)
+
+Use the keyword `refs` followed by the taks-reference: `refs #1234`.
+
+The comment will contain the commit message and the URL to the commit. If the email of the commit author matches a Kanboard user, the comment will be attached to this user.
+
+
+#### Close and/or move a Kanboard task when a commit is pushed to Gitea
+
 - Choose action: **Close the task**
+- Choose the event: **Gitea commit close received**
 
 When one or more commits are sent to Gitea, Kanboard will receive the information, each commit message with a task number included will be closed.
 
-Example:
+The plugin detects the follwing keywords followed by a task-reference: `closes`, `implements`, `fixes`, example: `closes #1234`
 
-- Commit message: "Fix bug #1234"
-- That will close the Kanboard task #1234
+If the task should be moved to another column attach this event to **Move the task to another column when assigned to a user**. Please note that for this to work, the Kanboard task needs to be assigend to a user and live in the column defined during action setup.
 
-#### Add a comment when a commit received
-
-- Choose the event: **Gitea commit received**
-- Choose action: **Create a comment from an external provider**
-
-The comment will contain the commit message and the URL to the commit.
-
-Example:
-
-- Commit message: "Added feature for #1234"
-- That will add a new comment on the task #1234
+If an additional comment should be created, you can also attach this event to **Create a comment from an external provider**

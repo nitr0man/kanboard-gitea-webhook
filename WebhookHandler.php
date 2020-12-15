@@ -87,7 +87,7 @@ class WebhookHandler extends Base
     public function handleCommit(array $commit)
     {
         // $task_id = $this->taskModel->getTaskIdFromText($commit['message']);
-        $re = '/(refs|closes) #([0-9]*)/m';
+        $re = '/(refs|closes|implements|fixes) #([0-9]*)/m';
 
         preg_match_all($re, $commit['message'], $matches, PREG_SET_ORDER, 0);
 
@@ -97,7 +97,7 @@ class WebhookHandler extends Base
                 return false;
             }
 
-            $task = $this->taskFinderModel->getById($task_id);
+            $task = $this->taskFinderModel->getDetails($task_id);
 
             if (empty($task)) {
                 return false;
@@ -111,12 +111,16 @@ class WebhookHandler extends Base
             if(!in_array($action, array('refs', 'closes'))) {
                 return false;
             }
+            
             $event = ($action === 'refs' ? self::EVENT_COMMIT_REF : self::EVENT_COMMIT_CLOSE);
+            $user = $this->userModel->getByEmail($commit['author']['email']);
 
             $this->dispatcher->dispatch(
                 $event,
                 new GenericEvent(array(
                     'task_id' => $task_id,
+                    'task' => $task,
+                    'user_id' => $user['id'],
                     'commit_message' => $commit['message'],
                     'commit_url' => $commit['url'],
                     'comment' => $commit['message']."\n\n[".t('Commit made by %s on Gitea', $commit['author']['name'] ?: $commit['author']['username']).']('.$commit['url'].')',

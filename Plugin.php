@@ -13,7 +13,7 @@ class Plugin extends Base
         $this->actionManager->getAction('\Kanboard\Action\CommentCreation')->addEvent(WebhookHandler::EVENT_COMMIT_REF);
         $this->actionManager->getAction('\Kanboard\Action\CommentCreation')->addEvent(WebhookHandler::EVENT_COMMIT_CLOSE);
         $this->actionManager->getAction('\Kanboard\Action\TaskClose')->addEvent(WebhookHandler::EVENT_COMMIT_CLOSE);
-        $this->actionManager->getAction('\Kanboard\Action\TaskMoveAnotherProject')->addEvent(WebhookHandler::EVENT_COMMIT_CLOSE);
+        $this->actionManager->getAction('\Kanboard\Action\TaskMoveColumnAssigned')->addEvent(WebhookHandler::EVENT_COMMIT_CLOSE);
         $this->template->hook->attach('template:project:integrations', 'GiteaWebhook:project/integrations');
         $this->route->addRoute('/webhook/gitea/:project_id/:token', 'WebhookController', 'handler', 'GiteaWebhook');
         $this->applicationAccessMap->add('WebhookController', 'handler', Role::APP_PUBLIC);
@@ -43,7 +43,7 @@ class Plugin extends Base
 
     public function getPluginVersion()
     {
-        return '1.0.5';
+        return '1.1.0';
     }
 
     public function getPluginHomepage()

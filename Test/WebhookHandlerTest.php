@@ -18,7 +18,7 @@ class WebhookHandlerTest extends Base
 
     public function testHandlePush()
     {
-        $this->container['dispatcher']->addListener(WebhookHandler::EVENT_COMMIT, array($this, 'onCommit'));
+        $this->container['dispatcher']->addListener(WebhookHandler::EVENT_COMMIT_REF, array($this, 'onCommit'));
 
         $tc = new TaskCreationModel($this->container);
         $p = new ProjectModel($this->container);
@@ -40,7 +40,7 @@ class WebhookHandlerTest extends Base
         $this->assertTrue($handler->parsePayload('push', $payload));
 
         $called = $this->container['dispatcher']->getCalledListeners();
-        $this->assertArrayHasKey(WebhookHandler::EVENT_COMMIT.'.WebhookHandlerTest::onCommit', $called);
+        $this->assertArrayHasKey(WebhookHandler::EVENT_COMMIT_REF.'.WebhookHandlerTest::onCommit', $called);
     }
 
     public function onCommit(GenericEvent $event)
@@ -49,8 +49,8 @@ class WebhookHandlerTest extends Base
         $this->assertEquals(1, $data['project_id']);
         $this->assertEquals(2, $data['task_id']);
         $this->assertEquals('test2', $data['title']);
-        $this->assertEquals("Fix issue #2\n\n\n[Commit made by @Frederic Guillot on Gitea](http://192.168.99.100:3000/me/test/commit/6ed26f1acb801e8904f12b842b918dfd9d10417b)", $data['comment']);
-        $this->assertEquals("Fix issue #2\n", $data['commit_message']);
+        $this->assertEquals("refs #2\n\n\n[Commit made by Frederic Guillot on Gitea](http://192.168.99.100:3000/me/test/commit/6ed26f1acb801e8904f12b842b918dfd9d10417b)", $data['comment']);
+        $this->assertEquals("refs #2\n", $data['commit_message']);
         $this->assertEquals('http://192.168.99.100:3000/me/test/commit/6ed26f1acb801e8904f12b842b918dfd9d10417b', $data['commit_url']);
     }
 }

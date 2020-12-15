@@ -19,7 +19,7 @@ class WebhookHandler extends Base
      * @var string
      */
     const EVENT_COMMIT_REF = 'gitea.webhook.commit_ref';
-    const EVENT_COMMIT_CLOSE = 'gitea.webhook.commit_close'
+    const EVENT_COMMIT_CLOSE = 'gitea.webhook.commit_close';
 
     /**
      * Project id

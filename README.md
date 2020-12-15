@@ -5,8 +5,8 @@ Connect Gitea webhook events to Kanboard automatic actions.
 
 Author
 ------
-
-- Frederic Guillot
+- Frederic Guillot (original GogsWebhook plugin)
+- Chris Metz
 - License MIT
 
 Requirements

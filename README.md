@@ -68,6 +68,6 @@ When one or more commits are sent to Gitea, Kanboard will receive the informatio
 
 The plugin detects the follwing keywords followed by a task-reference: `closes`, `implements`, `fixes`, example: `closes #1234`
 
-If the task should be moved to another column attach this event to **Move the task to another column when assigned to a user**. Please note that for this to work, the Kanboard task needs to be assigend to a user and live in the column defined during action setup.
+If the task should be moved to another column, attach this event to the action **Move the task to another column when assigned to a user** as well. Please note that for this to work, the Kanboard task needs to be assigend to a user and live in the column defined during action setup.
 
-If an additional comment should be created, you can also attach this event to **Create a comment from an external provider**
+If an additional comment should be created, you can also attach this event to the action **Create a comment from an external provider**

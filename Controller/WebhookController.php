@@ -1,9 +1,9 @@
 <?php
 
-namespace Kanboard\Plugin\GogsWebhook\Controller;
+namespace Kanboard\Plugin\GiteaWebhook\Controller;
 
 use Kanboard\Controller\BaseController;
-use Kanboard\Plugin\GogsWebhook\WebhookHandler;
+use Kanboard\Plugin\GiteaWebhook\WebhookHandler;
 
 /**
  * Webhook Controller
@@ -14,7 +14,7 @@ use Kanboard\Plugin\GogsWebhook\WebhookHandler;
 class WebhookController extends BaseController
 {
     /**
-     * Handle Gogs webhooks
+     * Handle Gitea webhooks
      *
      * @access public
      */
@@ -26,7 +26,7 @@ class WebhookController extends BaseController
         $handler->setProjectId($this->request->getIntegerParam('project_id'));
 
         $result = $handler->parsePayload(
-            $this->request->getHeader('X-Gogs-Event'),
+            $this->request->getHeader('X-Gitea-Event'),
             $this->request->getJson()
         );
 

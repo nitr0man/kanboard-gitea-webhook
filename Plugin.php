@@ -1,6 +1,6 @@
 <?php
 
-namespace Kanboard\Plugin\GogsWebhook;
+namespace Kanboard\Plugin\GiteaWebhook;
 
 use Kanboard\Core\Plugin\Base;
 use Kanboard\Core\Security\Role;
@@ -10,32 +10,35 @@ class Plugin extends Base
 {
     public function initialize()
     {
-        $this->actionManager->getAction('\Kanboard\Action\CommentCreation')->addEvent(WebhookHandler::EVENT_COMMIT);
-        $this->actionManager->getAction('\Kanboard\Action\TaskClose')->addEvent(WebhookHandler::EVENT_COMMIT);
-        $this->template->hook->attach('template:project:integrations', 'GogsWebhook:project/integrations');
-        $this->route->addRoute('/webhook/gogs/:project_id/:token', 'WebhookController', 'handler', 'GogsWebhook');
+        $this->actionManager->getAction('\Kanboard\Action\CommentCreation')->addEvent(WebhookHandler::EVENT_COMMIT_REF);
+        $this->actionManager->getAction('\Kanboard\Action\CommentCreation')->addEvent(WebhookHandler::EVENT_COMMIT_CLOSE);
+        $this->actionManager->getAction('\Kanboard\Action\TaskClose')->addEvent(WebhookHandler::EVENT_COMMIT_CLOSE);
+        $this->actionManager->getAction('\Kanboard\Action\TaskMoveAnotherProject')->addEvent(WebhookHandler::EVENT_COMMIT_CLOSE);
+        $this->template->hook->attach('template:project:integrations', 'GiteaWebhook:project/integrations');
+        $this->route->addRoute('/webhook/gitea/:project_id/:token', 'WebhookController', 'handler', 'GiteaWebhook');
         $this->applicationAccessMap->add('WebhookController', 'handler', Role::APP_PUBLIC);
     }
 
     public function onStartup()
     {
         Translator::load($this->languageModel->getCurrentLanguage(), __DIR__.'/Locale');
-        $this->eventManager->register(WebhookHandler::EVENT_COMMIT, t('Gogs commit received'));
+        $this->eventManager->register(WebhookHandler::EVENT_COMMIT_REF, t('Gitea commit reference received'));
+        $this->eventManager->register(WebhookHandler::EVENT_COMMIT_CLOSE, t('Gitea commit close received'));
     }
 
     public function getPluginName()
     {
-        return 'Gogs Webhook';
+        return 'Gitea Webhook';
     }
 
     public function getPluginDescription()
     {
-        return t('Bind Gogs webhook events to Kanboard automatic actions');
+        return t('Bind Gitea webhook events to Kanboard automatic actions');
     }
 
     public function getPluginAuthor()
     {
-        return 'Frédéric Guillot';
+        return 'Chris Metz';
     }
 
     public function getPluginVersion()
@@ -45,7 +48,7 @@ class Plugin extends Base
 
     public function getPluginHomepage()
     {
-        return 'https://github.com/kanboard/plugin-gogs-webhook';
+        return 'https://github.com/chriswep/plugin-gitea-webhook';
     }
 
     public function getCompatibleVersion()

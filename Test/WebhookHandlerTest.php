@@ -3,7 +3,7 @@
 require_once 'tests/units/Base.php';
 
 use Kanboard\Event\GenericEvent;
-use Kanboard\Plugin\GogsWebhook\WebhookHandler;
+use Kanboard\Plugin\GiteaWebhook\WebhookHandler;
 use Kanboard\Model\TaskCreationModel;
 use Kanboard\Model\ProjectModel;
 
@@ -49,7 +49,7 @@ class WebhookHandlerTest extends Base
         $this->assertEquals(1, $data['project_id']);
         $this->assertEquals(2, $data['task_id']);
         $this->assertEquals('test2', $data['title']);
-        $this->assertEquals("Fix issue #2\n\n\n[Commit made by @Frederic Guillot on Gogs](http://192.168.99.100:3000/me/test/commit/6ed26f1acb801e8904f12b842b918dfd9d10417b)", $data['comment']);
+        $this->assertEquals("Fix issue #2\n\n\n[Commit made by @Frederic Guillot on Gitea](http://192.168.99.100:3000/me/test/commit/6ed26f1acb801e8904f12b842b918dfd9d10417b)", $data['comment']);
         $this->assertEquals("Fix issue #2\n", $data['commit_message']);
         $this->assertEquals('http://192.168.99.100:3000/me/test/commit/6ed26f1acb801e8904f12b842b918dfd9d10417b', $data['commit_url']);
     }

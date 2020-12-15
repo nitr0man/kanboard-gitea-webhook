@@ -1,14 +1,15 @@
 <?php
 
-namespace Kanboard\Plugin\GogsWebhook;
+namespace Kanboard\Plugin\GiteaWebhook;
 
 use Kanboard\Core\Base;
 use Kanboard\Event\GenericEvent;
 
 /**
- * Gogs Webhook
+ * Gitea Webhook
  *
- * @author   Frederic Guillot
+ * @author   Frederic Guillot (GiteaWebhook)
+ * @author   Chris Metz
  */
 class WebhookHandler extends Base
 {
@@ -17,7 +18,8 @@ class WebhookHandler extends Base
      *
      * @var string
      */
-    const EVENT_COMMIT = 'gogs.webhook.commit';
+    const EVENT_COMMIT_REF = 'gitea.webhook.commit_ref';
+    const EVENT_COMMIT_CLOSE = 'gitea.webhook.commit_close'
 
     /**
      * Project id
@@ -42,8 +44,8 @@ class WebhookHandler extends Base
      * Parse incoming events
      *
      * @access public
-     * @param  string  $type      Gogs event type
-     * @param  array   $payload   Gogs event
+     * @param  string  $type      Gitea event type
+     * @param  array   $payload   Gitea event
      * @return boolean
      */
     public function parsePayload($type, array $payload)
@@ -79,36 +81,47 @@ class WebhookHandler extends Base
      * Parse commit
      *
      * @access public
-     * @param  array   $commit   Gogs commit
+     * @param  array   $commit   Gitea commit
      * @return boolean
      */
     public function handleCommit(array $commit)
     {
-        $task_id = $this->taskModel->getTaskIdFromText($commit['message']);
+        // $task_id = $this->taskModel->getTaskIdFromText($commit['message']);
+        $re = '/(refs|closes) #([0-9]*)/m';
 
-        if (empty($task_id)) {
-            return false;
+        preg_match_all($re, $commit['message'], $matches, PREG_SET_ORDER, 0);
+
+        foreach($matches as $taskRef) {
+            $task_id = $taskRef[2];
+            if (empty($task_id)) {
+                return false;
+            }
+
+            $task = $this->taskFinderModel->getById($task_id);
+
+            if (empty($task)) {
+                return false;
+            }
+
+            if ($task['project_id'] != $this->project_id) {
+                return false;
+            }
+
+            $action = $taskRef['1'];
+            if(!in_array($action, array('refs', 'closes'))) {
+                return false;
+            }
+
+            $this->dispatcher->dispatch(
+                ($action === 'refs' ? self::EVENT_COMMIT_REF : self::EVENT_COMMIT_CLOSE),
+                new GenericEvent(array(
+                    'task_id' => $task_id,
+                    'commit_message' => $commit['message'],
+                    'commit_url' => $commit['url'],
+                    'comment' => $commit['message']."\n\n[".t('Commit made by %s on Gitea', $commit['author']['name'] ?: $commit['author']['username']).']('.$commit['url'].')',
+                ) + $task)
+            );
         }
-
-        $task = $this->taskFinderModel->getById($task_id);
-
-        if (empty($task)) {
-            return false;
-        }
-
-        if ($task['project_id'] != $this->project_id) {
-            return false;
-        }
-
-        $this->dispatcher->dispatch(
-            self::EVENT_COMMIT,
-            new GenericEvent(array(
-                'task_id' => $task_id,
-                'commit_message' => $commit['message'],
-                'commit_url' => $commit['url'],
-                'comment' => $commit['message']."\n\n[".t('Commit made by @%s on Gogs', $commit['author']['name'] ?: $commit['author']['username']).']('.$commit['url'].')',
-            ) + $task)
-        );
 
         return true;
     }

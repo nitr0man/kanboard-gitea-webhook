@@ -111,9 +111,10 @@ class WebhookHandler extends Base
             if(!in_array($action, array('refs', 'closes'))) {
                 return false;
             }
+            $event = ($action === 'refs' ? self::EVENT_COMMIT_REF : self::EVENT_COMMIT_CLOSE)
 
             $this->dispatcher->dispatch(
-                ($action === 'refs' ? self::EVENT_COMMIT_REF : self::EVENT_COMMIT_CLOSE),
+                $event,
                 new GenericEvent(array(
                     'task_id' => $task_id,
                     'commit_message' => $commit['message'],

@@ -108,7 +108,7 @@ class WebhookHandler extends Base
             }
 
             $action = $taskRef['1'];
-            if(!in_array($action, array('refs', 'closes'))) {
+            if(!in_array($action, array('refs', 'closes', 'implements', 'fixes'))) {
                 return false;
             }
             

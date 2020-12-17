@@ -123,7 +123,7 @@ class WebhookHandler extends Base
                     'user_id' => $user['id'],
                     'commit_message' => $commit['message'],
                     'commit_url' => $commit['url'],
-                    'comment' => $commit['message']."\n\n[".t('Commit made by %s on Gitea', $commit['author']['name'] ?: $commit['author']['username']).']('.$commit['url'].')',
+                    'comment' => "[".t('%s committed on Gitea', $commit['author']['name'] ?: $commit['author']['username']).']('.$commit['url'].'): '.trim($commit['message']),
                 ) + $task)
             );
         }

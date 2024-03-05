@@ -49,11 +49,13 @@ class WebhookHandler extends Base
      * @return boolean
      */
     public function parsePayload($type, array $payload)
-    {
+    { 
         if ($type === 'push') {
             return $this->handlePush($payload);
         }
-
+        if ($type === 'pull_request'){
+           return $this->handlePullRequest($payload);
+        }
         return false;
     }
 
@@ -116,18 +118,69 @@ class WebhookHandler extends Base
             $user = $this->userModel->getByEmail($commit['author']['email']);
 
             $this->dispatcher->dispatch(
-                $event,
-                new GenericEvent(array(
+                //$event,
+                new GenericEvent(
+                    array(
                     'task_id' => $task_id,
                     'task' => $task,
-                    'user_id' => $user['id'],
+                    //'user_id' => $user['id'],
                     'commit_message' => $commit['message'],
                     'commit_url' => $commit['url'],
                     'comment' => "[".t('%s committed on Gitea', $commit['author']['name'] ?: $commit['author']['username']).']('.$commit['url'].'): '.trim($commit['message']),
-                ) + $task)
+                    ) + $task),
+                $event
             );
         }
 
         return true;
     }
+
+    public function handlePullRequest(array $payload){
+
+        $re = '/(refs|closes|implements|fixes) #([0-9]*)/m';
+
+        preg_match_all($re, $payload['pull_request']['title'], $matches, PREG_SET_ORDER, 0);
+
+        foreach($matches as $taskRef) {
+            $task_id = $taskRef[2];
+            if (empty($task_id)) {
+                return false;
+            }
+
+            $task = $this->taskFinderModel->getDetails($task_id);
+
+            if (empty($task)) {
+                return false;
+            }
+
+            if ($task['project_id'] != $this->project_id) {
+                return false;
+            }
+
+            $action = $taskRef['1'];
+            if(!in_array($action, array('refs', 'closes', 'implements', 'fixes'))) {
+                return false;
+            }
+
+            $event = ($action === 'refs' ? self::EVENT_COMMIT_REF : self::EVENT_COMMIT_CLOSE);
+            //$user = $this->userModel->getByEmail($commit['author']['email']);
+
+            $this->dispatcher->dispatch(
+                //$event,
+                new GenericEvent(
+                    array(
+                    'task_id' => $task_id,
+                    'task' => $task,
+                    //'user_id' => $user['id'],
+                    'commit_message' => $payload['pull_request']['title'],
+                    'commit_url' => $payload['pull_request']['html_url'],
+                    'comment' => 'hihi'
+                    ) + $task),
+                $event
+            );
+        }
+
+        return true;
+    }
+
 }

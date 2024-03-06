@@ -49,7 +49,7 @@ class WebhookHandler extends Base
      * @return boolean
      */
     public function parsePayload($type, array $payload)
-    { 
+    {
         if ($type === 'push') {
             return $this->handlePush($payload);
         }
@@ -137,7 +137,7 @@ class WebhookHandler extends Base
 
     public function handlePullRequest(array $payload){
 
-        $re = '/(refs|closes|implements|fixes) #([0-9]*)/m';
+        $re = '/(refs) #([0-9]*)/m';
 
         preg_match_all($re, $payload['pull_request']['title'], $matches, PREG_SET_ORDER, 0);
 
@@ -158,11 +158,11 @@ class WebhookHandler extends Base
             }
 
             $action = $taskRef['1'];
-            if(!in_array($action, array('refs', 'closes', 'implements', 'fixes'))) {
+            if(!in_array($action, array('refs'))) {
                 return false;
             }
 
-            $event = ($action === 'refs' ? self::EVENT_COMMIT_REF : self::EVENT_COMMIT_CLOSE);
+            $event = self::EVENT_COMMIT_REF;
             //$user = $this->userModel->getByEmail($commit['author']['email']);
 
             $this->dispatcher->dispatch(
@@ -173,8 +173,8 @@ class WebhookHandler extends Base
                     'task' => $task,
                     //'user_id' => $user['id'],
                     'commit_message' => $payload['pull_request']['title'],
-                    'commit_url' => $payload['pull_request']['html_url'],
-                    'comment' => 'hihi'
+                    'commit_url' => $payload['pull_request']['url'],
+                    'comment' => "[".t('%s created a PullRequest on Gitea', $payload['pull_request']['user']['username']).']('.$payload['pull_request']['url'].'): Title: '.$payload['pull_request']['title'],
                     ) + $task),
                 $event
             );

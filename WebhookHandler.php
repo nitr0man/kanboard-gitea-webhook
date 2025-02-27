@@ -89,7 +89,7 @@ class WebhookHandler extends Base
     public function handleCommit(array $commit)
     {
         // $task_id = $this->taskModel->getTaskIdFromText($commit['message']);
-        $re = '/(refs|closes|implements|fixes) #([0-9]*)/m';
+        $re = '/(refs|closes|implements|fixes|ticket) ?[:#] ?([1-9][0-9]*)/m';
 
         preg_match_all($re, $commit['message'], $matches, PREG_SET_ORDER, 0);
 
@@ -110,11 +110,11 @@ class WebhookHandler extends Base
             }
 
             $action = $taskRef['1'];
-            if(!in_array($action, array('refs', 'closes', 'implements', 'fixes'))) {
+            if(!in_array($action, array('refs', 'closes', 'implements', 'fixes', 'ticket'))) {
                 return false;
             }
             
-            $event = ($action === 'refs' ? self::EVENT_COMMIT_REF : self::EVENT_COMMIT_CLOSE);
+            $event = (in_array($action, array('refs', 'ticket') ? self::EVENT_COMMIT_REF : self::EVENT_COMMIT_CLOSE);
             $user = $this->userModel->getByEmail($commit['author']['email']);
 
             $this->dispatcher->dispatch(
@@ -137,8 +137,8 @@ class WebhookHandler extends Base
 
     public function handlePullRequest(array $payload){
 
-        $re = '/(refs) #([0-9]*)/m';
-
+        $re = '/(refs|ticket) ?[:#] ?([1-9][0-9]*)/m';
+        
         preg_match_all($re, $payload['pull_request']['title'], $matches, PREG_SET_ORDER, 0);
 
         foreach($matches as $taskRef) {
@@ -158,7 +158,7 @@ class WebhookHandler extends Base
             }
 
             $action = $taskRef['1'];
-            if(!in_array($action, array('refs'))) {
+            if(!in_array($action, array('refs', 'ticket'))) {
                 return false;
             }
 
